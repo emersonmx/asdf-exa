@@ -2,7 +2,15 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for exa.
+case "$(uname -s)" in
+  "Linux")
+    platform='linux-x86_64'
+    ;;
+  "Darwin")
+    platform='macos-x86_64'
+    ;;
+esac
+
 GH_REPO="https://github.com/ogham/exa"
 
 fail() {
@@ -25,12 +33,10 @@ sort_versions() {
 list_github_tags() {
   git ls-remote --tags --refs "$GH_REPO" |
     grep -o 'refs/tags/.*' | cut -d/ -f3- |
-    sed 's/^v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
+    sed -r -e 's/^v//' -e '/^[0-9]+\.[0-9]+\.[0-9]+$/! d' # NOTE: You might want to adapt this sed to remove non-version strings from tags
 }
 
 list_all_versions() {
-  # TODO: Adapt this. By default we simply list the tag names from GitHub releases.
-  # Change this function if exa has other means of determining installable versions.
   list_github_tags
 }
 
@@ -39,8 +45,7 @@ download_release() {
   version="$1"
   filename="$2"
 
-  # TODO: Adapt the release URL convention for exa
-  url="$GH_REPO/archive/v${version}.tar.gz"
+  url="$GH_REPO/releases/download/v${version}/exa-${platform}-${version}.zip"
 
   echo "* Downloading exa release $version..."
   curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
@@ -60,13 +65,13 @@ install_version() {
   (
     mkdir -p "$install_path"
     download_release "$version" "$release_file"
-    tar -xzf "$release_file" -C "$install_path" --strip-components=1 || fail "Could not extract $release_file"
+    unzip "$release_file" -d "$install_path" || fail "Could not extract $release_file"
     rm "$release_file"
 
     # TODO: Asert exa executable exists.
     local tool_cmd
     tool_cmd="$(echo "exa --help" | cut -d' ' -f1)"
-    test -x "$install_path/bin/$tool_cmd" || fail "Expected $install_path/bin/$tool_cmd to be executable."
+    test -x "$install_path/$tool_cmd-${platform}" || fail "Expected $install_path/$tool_cmd-${platform} to be executable."
 
     echo "exa $version installation was successful!"
   ) || (
