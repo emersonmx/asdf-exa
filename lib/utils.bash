@@ -61,7 +61,7 @@ install_version() {
   fi
 
   # TODO: Adapt this to proper extension and adapt extracting strategy.
-  local release_file="$install_path/exa-$version.tar.gz"
+  local release_file="$install_path/exa-$version.zip"
   (
     mkdir -p "$install_path"
     download_release "$version" "$release_file"
