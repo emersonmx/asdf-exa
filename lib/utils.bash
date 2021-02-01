@@ -60,18 +60,17 @@ install_version() {
     fail "asdf-exa supports release installs only"
   fi
 
-  # TODO: Adapt this to proper extension and adapt extracting strategy.
   local release_file="$install_path/exa-$version.zip"
   (
     mkdir -p "$install_path"
     download_release "$version" "$release_file"
-    unzip "$release_file" -d "$install_path" || fail "Could not extract $release_file"
+    unzip "$release_file" -d "$install_path/bin" || fail "Could not extract $release_file"
     rm "$release_file"
 
-    # TODO: Asert exa executable exists.
     local tool_cmd
     tool_cmd="$(echo "exa --help" | cut -d' ' -f1)"
-    test -x "$install_path/$tool_cmd-${platform}" || fail "Expected $install_path/$tool_cmd-${platform} to be executable."
+    mv "$install_path/bin/$tool_cmd-${platform}" "$install_path/bin/$tool_cmd"
+    test -x "$install_path/bin/$tool_cmd" || fail "Expected $install_path/$tool_cmd-${platform} to be executable."
 
     echo "exa $version installation was successful!"
   ) || (
