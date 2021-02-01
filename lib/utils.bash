@@ -70,7 +70,7 @@ install_version() {
     local tool_cmd
     tool_cmd="$(echo "exa --help" | cut -d' ' -f1)"
     tool_path="$install_path/bin/$tool_cmd"
-    mv "$install_path/bin/$tool_cmd-${platform}" "$tool_path"
+    mv -f "$install_path/bin/$tool_cmd-${platform}" "$tool_path"
     chmod +x "$tool_path"
     test -x "$tool_path" || fail "Expected $install_path/$tool_cmd-${platform} to be executable."
 
