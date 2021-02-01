@@ -69,9 +69,10 @@ install_version() {
 
     local tool_cmd
     tool_cmd="$(echo "exa --help" | cut -d' ' -f1)"
-    mv "$install_path/bin/$tool_cmd-${platform}" "$install_path/bin/$tool_cmd"
-    chmod +x "$install_path/bin/$tool_cmd"
-    test -x "$install_path/bin/$tool_cmd" || fail "Expected $install_path/$tool_cmd-${platform} to be executable."
+    tool_path="$install_path/bin/$tool_cmd"
+    mv "$install_path/bin/$tool_cmd-${platform}" "$tool_path"
+    chmod +x "$tool_path"
+    test -x "$tool_path" || fail "Expected $install_path/$tool_cmd-${platform} to be executable."
 
     echo "exa $version installation was successful!"
   ) || (
